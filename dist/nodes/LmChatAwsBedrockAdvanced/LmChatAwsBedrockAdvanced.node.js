@@ -175780,7 +175780,7 @@ var import_n8n_workflow = require("n8n-workflow");
 var LmChatAwsBedrockAdvanced = class {
   constructor() {
     this.description = {
-      displayName: "AWS Bedrock Chat Model (Advanced)",
+      displayName: "AWS Bedrock Chat Model (Advanced + Effort)",
       name: "lmChatAwsBedrockAdvanced",
       icon: "file:bedrock.svg",
       group: ["transform"],
@@ -176035,6 +176035,28 @@ var LmChatAwsBedrockAdvanced = class {
               }
             },
             {
+              displayName: "Effort",
+              name: "effort",
+              type: "options",
+              options: [
+                { name: "Low", value: "low" },
+                { name: "Medium", value: "medium" },
+                { name: "High", value: "high" },
+                { name: "Extra High", value: "xhigh" },
+                { name: "Max", value: "max" }
+              ],
+              default: "medium",
+              description: "Sent as output_config.effort. Lower effort means less thinking and fewer output tokens. Claude models that support effort only (e.g. Sonnet 5, Opus 4.6+); leave unset for other models."
+            },
+            {
+              displayName: "Timeout (Ms)",
+              name: "timeout",
+              type: "number",
+              default: 18e4,
+              typeOptions: { minValue: 1 },
+              description: "Fail a Bedrock request that takes longer than this many milliseconds. Without it a hung request never times out."
+            },
+            {
               displayName: "Enable Debug Logs",
               name: "enableDebugLogs",
               default: false,
@@ -176059,10 +176081,10 @@ var LmChatAwsBedrockAdvanced = class {
         ...credentials.sessionToken && { sessionToken: credentials.sessionToken }
       }
     };
-    if (proxyAgent) {
+    if (proxyAgent || options.timeout) {
       clientConfig.requestHandler = new import_node_http_handler5.NodeHttpHandler({
-        httpAgent: proxyAgent,
-        httpsAgent: proxyAgent
+        ...proxyAgent && { httpAgent: proxyAgent, httpsAgent: proxyAgent },
+        ...options.timeout && { requestTimeout: options.timeout, throwOnRequestTimeout: true }
       });
     }
     const client2 = new import_client_bedrock_runtime2.BedrockRuntimeClient(clientConfig);
@@ -176205,6 +176227,7 @@ var LmChatAwsBedrockAdvanced = class {
       region: credentials.region,
       temperature: options.temperature,
       maxTokens: options.maxTokensToSample,
+      ...options.effort && { additionalModelRequestFields: { output_config: { effort: options.effort } } },
       callbacks: [new import_ai_utilities.N8nLlmTracing(this)],
       onFailedAttempt: (0, import_ai_utilities.makeN8nLlmFailedAttemptHandler)(this)
     });

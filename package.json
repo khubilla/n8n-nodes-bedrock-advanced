@@ -1,52 +1,51 @@
 {
-  "name": "n8n-nodes-bedrock-advanced",
-  "version": "0.5.2",
-  "description": "n8n community node for AWS Bedrock Chat Model with prompt caching support",
+  "name": "@khubilla/n8n-nodes-bedrock-advanced",
+  "version": "1.0.0",
+  "description": "Fork of n8n-nodes-bedrock-advanced 0.5.2 (AWS Bedrock Chat Model with prompt caching) that adds an Effort option and a request timeout",
   "keywords": [
     "n8n-community-node-package",
     "aws",
     "bedrock",
-    "prompt-caching"
+    "prompt-caching",
+    "effort"
   ],
   "license": "MIT",
   "author": {
-    "name": "Amir Souchami"
+    "name": "khubilla",
+    "url": "https://github.com/khubilla"
   },
   "repository": {
     "type": "git",
-    "url": ""
+    "url": "git+https://github.com/khubilla/n8n-nodes-bedrock-advanced.git"
   },
-  "main": "dist/index.js",
-  "types": "dist/index.d.ts",
+  "main": "dist/nodes/LmChatAwsBedrockAdvanced/LmChatAwsBedrockAdvanced.node.js",
   "scripts": {
-    "build": "node esbuild.js",
-    "build:types": "tsc --emitDeclarationOnly",
-    "dev": "tsc --watch",
-    "prepublishOnly": "npm run build",
-    "lint": "tsc --noEmit",
-    "test:cache-1h": "ts-node --project test/tsconfig.json --transpile-only test/cache-1h.integration.ts"
+    "test": "node --test test/*.test.mjs",
+    "patch": "node scripts/apply-patches.mjs"
   },
   "files": [
     "dist",
-    "README.md"
+    "README.md",
+    "PATCHES.md",
+    "LICENSE",
+    "UPSTREAM-README.md"
   ],
   "n8n": {
     "n8nNodesApiVersion": 1,
     "nodes": [
-      "dist/nodes/LmChatAwsBedrockAdvanced/LmChatAwsBedrockAdvanced.node.js",
-      "dist/nodes/LmChatBedrockClaude/LmChatBedrockClaude.node.js"
+      "dist/nodes/LmChatAwsBedrockAdvanced/LmChatAwsBedrockAdvanced.node.js"
     ]
   },
   "devDependencies": {
-    "@aws-sdk/client-bedrock-runtime": "^3.0.0",
-    "@langchain/aws": "^0.1.0",
-    "@langchain/core": "^0.3.0",
-    "@n8n/ai-utilities": "^0.6.0",
-    "@smithy/node-http-handler": "^3.0.0",
-    "@types/node": "^20.0.0",
-    "esbuild": "^0.27.4",
-    "n8n-workflow": "^1.0.0",
-    "ts-node": "^10.9.0",
-    "typescript": "^5.0.0"
+    "n8n-workflow": "^1.0.0"
+  },
+  "contributors": [
+    {
+      "name": "Amir Souchami",
+      "url": "https://www.npmjs.com/package/n8n-nodes-bedrock-advanced"
+    }
+  ],
+  "publishConfig": {
+    "access": "public"
   }
 }
