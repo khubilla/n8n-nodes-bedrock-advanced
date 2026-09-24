@@ -1,0 +1,52 @@
+{
+  "name": "n8n-nodes-bedrock-advanced",
+  "version": "0.5.2",
+  "description": "n8n community node for AWS Bedrock Chat Model with prompt caching support",
+  "keywords": [
+    "n8n-community-node-package",
+    "aws",
+    "bedrock",
+    "prompt-caching"
+  ],
+  "license": "MIT",
+  "author": {
+    "name": "Amir Souchami"
+  },
+  "repository": {
+    "type": "git",
+    "url": ""
+  },
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "node esbuild.js",
+    "build:types": "tsc --emitDeclarationOnly",
+    "dev": "tsc --watch",
+    "prepublishOnly": "npm run build",
+    "lint": "tsc --noEmit",
+    "test:cache-1h": "ts-node --project test/tsconfig.json --transpile-only test/cache-1h.integration.ts"
+  },
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "n8n": {
+    "n8nNodesApiVersion": 1,
+    "nodes": [
+      "dist/nodes/LmChatAwsBedrockAdvanced/LmChatAwsBedrockAdvanced.node.js",
+      "dist/nodes/LmChatBedrockClaude/LmChatBedrockClaude.node.js"
+    ]
+  },
+  "devDependencies": {
+    "@aws-sdk/client-bedrock-runtime": "^3.0.0",
+    "@langchain/aws": "^0.1.0",
+    "@langchain/core": "^0.3.0",
+    "@n8n/ai-utilities": "^0.6.0",
+    "@smithy/node-http-handler": "^3.0.0",
+    "@types/node": "^20.0.0",
+    "esbuild": "^0.27.4",
+    "n8n-workflow": "^1.0.0",
+    "ts-node": "^10.9.0",
+    "typescript": "^5.0.0"
+  }
+}
