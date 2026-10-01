@@ -65,6 +65,75 @@ const PATCHES = [
     }`,
   },
   {
+    name: 'Cache Latest Turn option in the UI',
+    find: `              description: "Whether to add a cache point at the end of the most recent previous assistant turn. Reduces cost in multi-turn conversations by caching the growing history.",
+              displayOptions: {
+                show: {
+                  enablePromptCaching: [true]
+                }
+              }
+            },`,
+    replace: `              description: "Whether to add a cache point at the end of the most recent previous assistant turn. Reduces cost in multi-turn conversations by caching the growing history.",
+              displayOptions: {
+                show: {
+                  enablePromptCaching: [true]
+                }
+              }
+            },
+            {
+              displayName: "Cache Latest Turn",
+              name: "cacheLatestTurn",
+              type: "boolean",
+              default: false,
+              description: "Whether to add a cache point after the newest message on every call, including tool results. In an agent's tool loop each result is then written to the cache once and read cheaply on later calls, instead of being re-sent as uncached input. Keeps within Bedrock's limit of 4 cache points.",
+              displayOptions: {
+                show: {
+                  enablePromptCaching: [true]
+                }
+              }
+            },`,
+  },
+  {
+    name: 'Cache Latest Turn: cache point after the newest message, added to the converted request',
+    // Added on the Converse request itself, after LangChain's conversion, so the
+    // cache point sits beside a toolResult block rather than inside it.
+    find: `      onFailedAttempt: (0, import_ai_utilities.makeN8nLlmFailedAttemptHandler)(this)
+    });
+    return {
+      response: model
+    };`,
+    replace: `      onFailedAttempt: (0, import_ai_utilities.makeN8nLlmFailedAttemptHandler)(this)
+    });
+    if (options.enablePromptCaching && options.cacheLatestTurn) {
+      const MAX_CACHE_POINTS = 4;
+      const countCachePoints = (blocks) => (blocks || []).filter((b) => b && b.cachePoint).length;
+      const addLatestTurnCachePoint = (input) => {
+        const messages = input?.messages;
+        const last = Array.isArray(messages) ? messages[messages.length - 1] : void 0;
+        if (!Array.isArray(last?.content) || last.content.length === 0) return;
+        if (last.content[last.content.length - 1]?.cachePoint) return;
+        let total = countCachePoints(input.system) + countCachePoints(input.toolConfig?.tools) + messages.reduce((n, m) => n + countCachePoints(m.content), 0);
+        if (total >= MAX_CACHE_POINTS) {
+          // Make room by dropping the oldest message-level cache point: the new one covers everything it did.
+          for (const m of messages) {
+            const i = (m.content || []).findIndex((b) => b && b.cachePoint);
+            if (i !== -1) { m.content.splice(i, 1); total--; break; }
+          }
+          if (total >= MAX_CACHE_POINTS) return;
+        }
+        last.content.push({ cachePoint: { type: "default" } });
+      };
+      const send = client2.send.bind(client2);
+      client2.send = (command, ...rest) => {
+        addLatestTurnCachePoint(command?.input);
+        return send(command, ...rest);
+      };
+    }
+    return {
+      response: model
+    };`,
+  },
+  {
     name: 'effort sent as additionalModelRequestFields.output_config',
     find: `      maxTokens: options.maxTokensToSample,
       callbacks: [new import_ai_utilities.N8nLlmTracing(this)],`,

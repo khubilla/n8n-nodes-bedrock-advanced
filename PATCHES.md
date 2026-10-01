@@ -34,7 +34,32 @@ client's `NodeHttpHandler` gets `requestTimeout` plus
 `throwOnRequestTimeout: true`. Without the second flag the AWS SDK only logs a
 warning and keeps waiting. A configured proxy is still honoured.
 
-## 3. Display name
+## 3. Cache Latest Turn option
+
+Upstream's **Cache Conversation History** puts its cache point on the most
+recent message that isn't a tool call or tool result. In an agent's tool loop,
+that's always the original input message. So every tool result after it is
+re-sent as full-price input on every later call of the run.
+
+The fork adds a **Cache Latest Turn** option, shown under prompt caching and
+off by default. When on, every Converse request gets a cache point after its
+newest message, whether that's the input or a tool result. Each tool result is
+then written to the cache once (1.25× input price) and read on later calls
+(0.1×), instead of being paid in full every time.
+
+The cache point is added to the Converse request after LangChain's conversion,
+by wrapping the client's `send`. That way it sits beside a `toolResult` block
+in the user message, not inside it. Bedrock allows 4 cache points per request:
+tools, system, history and the newest turn use exactly that. If 4 are already
+present, the oldest message-level cache point is dropped first, because the new
+one covers everything it did.
+
+Measured on Claude Sonnet 5.5 with a 3-call tool loop: uncached input per call
+went 95 → 3,030 → 5,980 tokens without the option, and 4 → 2 → 2 with it. The
+saving grows with run length. A tool result first sent on the last call is
+never read again, so it costs 0.25× more.
+
+## 4. Display name
 
 The node shows as **AWS Bedrock Chat Model (Advanced + Effort)**, so it can be
 told apart from the upstream node when both are installed. The internal node

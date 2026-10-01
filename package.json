@@ -1,7 +1,7 @@
 {
   "name": "@khubilla/n8n-nodes-bedrock-advanced",
-  "version": "1.0.0",
-  "description": "Fork of n8n-nodes-bedrock-advanced 0.5.2 (AWS Bedrock Chat Model with prompt caching) that adds an Effort option and a request timeout",
+  "version": "1.1.0",
+  "description": "Fork of n8n-nodes-bedrock-advanced 0.5.2 (AWS Bedrock Chat Model with prompt caching) that adds Effort, Timeout and Cache Latest Turn options",
   "keywords": [
     "n8n-community-node-package",
     "aws",

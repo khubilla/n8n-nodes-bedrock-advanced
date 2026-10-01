@@ -4,15 +4,16 @@ An n8n community node: **AWS Bedrock Chat Model (Advanced + Effort)**.
 
 It's a fork of [`n8n-nodes-bedrock-advanced`](https://www.npmjs.com/package/n8n-nodes-bedrock-advanced)
 0.5.2 by Amir Souchami, which adds Bedrock prompt caching to n8n's chat model.
-This fork keeps caching as it is and adds two options that upstream can't
+This fork keeps caching as it is and adds three options that upstream can't
 express:
 
 | Option | What it sends | Default when added |
 |---|---|---|
 | **Effort** | `output_config.effort` on every Converse request (low, medium, high, xhigh or max) | medium |
 | **Timeout (Ms)** | Fails a Bedrock request that runs longer than this | 180000 |
+| **Cache Latest Turn** | A cache point after the newest message, so an agent's tool results are cached as the run goes on (shown under prompt caching) | off |
 
-Both are optional. If you don't add them to a node, requests are identical to
+All are optional. If you don't add them to a node, requests are identical to
 upstream 0.5.2. See [PATCHES.md](PATCHES.md) for exactly what changed and why.
 
 ## Install
